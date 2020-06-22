@@ -44,9 +44,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public int getScore() {
         return score;
     }
-    //
-
-    //
+    //**********************************************
+    public native void FULL();
+    public native void SEG(int num);
+    static{System.loadLibrary("GAMEVIEW");}
+    //**********************************************
     // For the bird
     private float positionX = 0.0f;
     private float positionY = 0.0f;
@@ -237,7 +239,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     if (pipe.getPositionX() - pipeVelocity <
                             measuredWidth / 2.0f - pipeWidth / 2.0f - 100.0f / 2.0f) {
                         score++;
-                     //추가할곳 점수얻었을때
+                        //점수획득시 fullled와 seg 표기8********************
+
+                        new Thread(new Runnable() { @Override public void run() {
+                            FULL();
+                        }
+                        }).start();
+                        new Thread(new Runnable() { @Override public void run() {
+                            SEG(score);
+                        }
+                        }).start();
+
+                     //*************************************************
 
                         // Update the score in MainActivity
                         Context context = getContext();

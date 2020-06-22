@@ -21,12 +21,27 @@ import java.util.TimerTask;
 
 public class GameActivity extends AppCompatActivity {
 
+    public native synchronized void LED_CTRL(int num);
+    public native void LED_ALL_ON();
+    public native void LED_ALL_OFF();
+    public native void JUMPSOUND();
+    public native void DEADSOUND();
+    //public synchronized LED_CONTROL(int case, int )
+
+    static{System.loadLibrary("GAMEACT");}
+
     private GameView gameView;
     private TextView textViewScore;
     private boolean isGameOver;
     private boolean isSetNewTimerThreadEnabled;
+    //
+    public int jump_cnt;
+    public synchronized void plus(){jump_cnt += 1;}//동기화시켜줘서 오류값이 안뜨게해줌
+    public synchronized void minus(){jump_cnt -= 1;}
 
+    //
     private Thread setNewTimerThread;
+    private Thread increaseJump;
 
     private AlertDialog.Builder alertDialog;
 
@@ -52,7 +67,24 @@ public class GameActivity extends AppCompatActivity {
                             // Cancel the timer
                             timer.cancel();
                             timer.purge();
+                            //led 원상복귀
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    LED_ALL_OFF();
+                                }
+                            }).start();
+                            //dead sound
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    DEADSOUND();
+                                }
+                            }).start();
 
+
+
+                            increaseJump.interrupt();
 
                         alertDialog = new AlertDialog.Builder(GameActivity.this);
                         alertDialog.setTitle("GAME OVER");
@@ -95,7 +127,7 @@ public class GameActivity extends AppCompatActivity {
     private static final int RESET_SCORE = 0x01;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {//시작점
         super.onCreate(savedInstanceState);
 
         // 스테이터스바 안보이게
@@ -104,19 +136,9 @@ public class GameActivity extends AppCompatActivity {
         //
 
         setContentView(R.layout.activity_game);
-        // Initialize the private views
         initViews();
 
-        // Initialize the MediaPlayer********************
-        //mediaPlayer = MediaPlayer.create(this, R.raw.sound_score);
-        //mediaPlayer.setLooping(false);
-
-        // Get the mode of the game from the StartingActivity
-
-
-
-
-        // Set the Timer
+        // timer
         isSetNewTimerThreadEnabled = true;
         setNewTimerThread = new Thread(new Runnable() {
             @Override
@@ -133,7 +155,35 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         });
+        setNewTimerThread.setDaemon(true);
         setNewTimerThread.start();
+        //******************************************************
+        //jump_cnt full and start
+        LED_ALL_ON();
+        jump_cnt = 8;
+        increaseJump = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    while(true) {
+                        if (jump_cnt < 8) {
+                            plus();
+                            LED_CTRL(jump_cnt);
+                        }
+                        Thread.sleep(1100);
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                } finally {
+
+                }
+            }
+        });
+        increaseJump.setDaemon(true);
+        increaseJump.start();
+        //********************************************
+
 
             // Jump listener
             gameView.setOnTouchListener(new View.OnTouchListener() {
@@ -141,7 +191,26 @@ public class GameActivity extends AppCompatActivity {
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-                            gameView.jump();
+                            if(jump_cnt > 0) {//if count is left
+                                minus();
+                                gameView.jump();
+                                //jump and decrease**************
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        LED_CTRL(jump_cnt);
+                                    }
+                                }).start();
+
+                                ///jump sound*********************
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        JUMPSOUND();
+                                    }
+                                }).start();
+
+                            }
                                     //점프하는곳
                             break;
 
@@ -172,7 +241,6 @@ public class GameActivity extends AppCompatActivity {
         if (!isSetNewTimerThreadEnabled) {
             return;
         }
-
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
 
@@ -223,6 +291,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void restartGame() {
         // Reset all the data of the over game in the GameView
+
         gameView.resetData();
 
         // Refresh the TextView for displaying the score
@@ -255,6 +324,31 @@ public class GameActivity extends AppCompatActivity {
 
             });
             setNewTimerThread.start();
+            //restart, jump_cnt full and start************************
+        LED_ALL_ON();
+        jump_cnt = 8;
+        increaseJump = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    while(true) {
+                        if (jump_cnt < 8) {
+                            plus();
+                            LED_CTRL(jump_cnt);
+                        }
+                        Thread.sleep(1100);
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                } finally {
+
+                }
+            }
+        });
+        increaseJump.setDaemon(true);
+        increaseJump.start();
+        //******************************************
 
     }
 
