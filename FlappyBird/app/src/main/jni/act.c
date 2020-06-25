@@ -1,6 +1,7 @@
 //
-// Created by JiHun on 2020-06-16.
+// Created by JiHun on 2020-06-25.
 //
+
 #include "com_daisy_flappybird_GameActivity.h"
 #include <unistd.h>
 #include <fcntl.h>

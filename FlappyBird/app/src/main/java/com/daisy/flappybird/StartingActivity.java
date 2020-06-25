@@ -18,7 +18,7 @@ import android.widget.NumberPicker;
 public class StartingActivity extends AppCompatActivity {
 
 
-    @Override
+    @Override//여기서 시작
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_starting);

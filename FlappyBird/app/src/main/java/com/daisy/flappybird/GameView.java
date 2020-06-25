@@ -44,6 +44,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public int getScore() {
         return score;
     }
+
     //**********************************************
     public native void FULL();
     public native void SEG(int num);
@@ -80,7 +81,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         init();
     }
 
-    public GameView(Context context, AttributeSet a, int b) {
+    public GameView(Context context, AttributeSet a, int b) {//생성자때 열고? 소멸자때 닫는다
         super(context, a, b);
 
         // Initialize
@@ -99,7 +100,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
-    private void init() {
+    private void init() {//시
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
 
@@ -240,7 +241,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                             measuredWidth / 2.0f - pipeWidth / 2.0f - 100.0f / 2.0f) {
                         score++;
                         //점수획득시 fullled와 seg 표기8********************
-
                         new Thread(new Runnable() { @Override public void run() {
                             FULL();
                         }
@@ -249,6 +249,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                             SEG(score);
                         }
                         }).start();
+
 
                      //*************************************************
 

@@ -1,6 +1,7 @@
 //
-// Created by JiHun on 2020-06-16.
+// Created by JiHun on 2020-06-25.
 //
+
 #include "com_daisy_flappybird_GameView.h"
 #include <unistd.h>
 #include <fcntl.h>
@@ -37,6 +38,7 @@ JNIEXPORT void JNICALL Java_com_daisy_flappybird_GameView_SEG
 (JNIEnv *env, jobject this_ptr, jint num)
 {
     int fd = open("/dev/fpga_segment", O_WRONLY);
+    if(fd == -1)return;
 
     for(int i = 0; i < 150; i++){
     write(fd, &num, 4);

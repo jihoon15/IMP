@@ -19,6 +19,7 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 public class GameActivity extends AppCompatActivity {
 
     public native synchronized void LED_CTRL(int num);
@@ -26,9 +27,8 @@ public class GameActivity extends AppCompatActivity {
     public native void LED_ALL_OFF();
     public native void JUMPSOUND();
     public native void DEADSOUND();
-    //public synchronized LED_CONTROL(int case, int )
-
     static{System.loadLibrary("GAMEACT");}
+
 
     private GameView gameView;
     private TextView textViewScore;
@@ -36,8 +36,12 @@ public class GameActivity extends AppCompatActivity {
     private boolean isSetNewTimerThreadEnabled;
     //
     public int jump_cnt;
-    public synchronized void plus(){jump_cnt += 1;}//동기화시켜줘서 오류값이 안뜨게해줌
-    public synchronized void minus(){jump_cnt -= 1;}
+    //public void plus(){jump_cnt += 1;}//동기화시켜줘서 오류값이 안뜨게해줌
+    //public void minus(){jump_cnt -= 1;}
+    public synchronized void plus_minus(int num){//0일때 더하기 나머지 마이너스
+        if (num==0){jump_cnt++;}
+        else{jump_cnt--;}
+    }
 
     //
     private Thread setNewTimerThread;
@@ -68,6 +72,7 @@ public class GameActivity extends AppCompatActivity {
                             timer.cancel();
                             timer.purge();
                             //led 원상복귀
+
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -81,6 +86,8 @@ public class GameActivity extends AppCompatActivity {
                                     DEADSOUND();
                                 }
                             }).start();
+
+
 
 
 
@@ -127,7 +134,7 @@ public class GameActivity extends AppCompatActivity {
     private static final int RESET_SCORE = 0x01;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//시작점
+    protected void onCreate(Bundle savedInstanceState) {//시작점 여기서 file open
         super.onCreate(savedInstanceState);
 
         // 스테이터스바 안보이게
@@ -168,10 +175,11 @@ public class GameActivity extends AppCompatActivity {
 
                     while(true) {
                         if (jump_cnt < 8) {
-                            plus();
+                            //plus();
+                            plus_minus(0);
                             LED_CTRL(jump_cnt);
                         }
-                        Thread.sleep(1100);
+                        Thread.sleep(1050);
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();
@@ -192,9 +200,11 @@ public class GameActivity extends AppCompatActivity {
                     switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             if(jump_cnt > 0) {//if count is left
-                                minus();
+                                //minus();
+                                plus_minus(1);
                                 gameView.jump();
                                 //jump and decrease**************
+
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -212,6 +222,8 @@ public class GameActivity extends AppCompatActivity {
 
                             }
                                     //점프하는곳
+
+
                             break;
 
                         case MotionEvent.ACTION_UP:
@@ -256,7 +268,6 @@ public class GameActivity extends AppCompatActivity {
         }, 0, 17);
     }
 
-    @Override
     protected void onDestroy() {
         if (timer != null) {
             timer.cancel();
@@ -334,10 +345,11 @@ public class GameActivity extends AppCompatActivity {
 
                     while(true) {
                         if (jump_cnt < 8) {
-                            plus();
+                            //plus();
+                            plus_minus(0);
                             LED_CTRL(jump_cnt);
                         }
-                        Thread.sleep(1100);
+                        Thread.sleep(1050);
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();
